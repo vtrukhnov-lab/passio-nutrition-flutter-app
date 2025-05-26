@@ -1,61 +1,102 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
-import 'package:nutrition_ai_example/domain/entity/app_secret/app_secret.dart';
+
+import 'utils/sdk_utils.dart';
 
 void main() {
   setUpAll(() async {
-    const configuration = PassioConfiguration(AppSecret.passioKey);
-    final status = await NutritionAI.instance.configureSDK(configuration);
-    expect(status.mode, PassioMode.isReadyForDetection);
+    await configureSDK();
   });
 
-  runTests();
+  runGroup();
+}
+
+void runGroup() {
+  group('fetchUltraProcessingFoodRating tests', () {
+    runTests();
+  });
 }
 
 void runTests() {
-  group('fetchUltraProcessingFoodRating tests', () {
-    // Expected Output: Result must be success, and chainOfThought should contain reasoning.
-    test('Fetch UPF rating for a visual food item test', () async {
-      final PassioFoodItem? foodItemResult = await NutritionAI.instance
-          .fetchFoodItemForRefCode(
-              'eyJsYWJlbGlkIjoiOTBmODRjMWUtOWEwZC0xMWVhLTk4YTQtYjNlZWJhZTQ4NDFkIiwidHlwZSI6InN5bm9ueW0iLCJyZXN1bHRpZCI6IjE2MDMyMTE1ODU0NDMiLCJtZXRhZGF0YSI6bnVsbH0=');
-      if (foodItemResult == null) {
-        fail('Failed to fetch food item for refCode');
-      }
-      final PassioResult<PassioUPFRating> upfRatingResult = await NutritionAI
-          .instance
-          .fetchUltraProcessingFoodRating(foodItemResult);
-      switch (upfRatingResult) {
-        case Success():
-          expect(upfRatingResult.value.chainOfThought, isNotEmpty);
-          expect(upfRatingResult.value.highlightedIngredients, isEmpty);
-          expect(upfRatingResult.value.rating, greaterThanOrEqualTo(0));
-          break;
-        case Error():
-          fail('Expected Success but got Error: ${upfRatingResult.message}');
-      }
-    });
+  PassioFoodItem? barcodeFoodItemResult;
 
-    // Expected Output: Result must be non-null, chainOfThought and ingredients should not be empty, and rating should be >= 0.
-    test('Fetch UPF rating for a barcode item test', () async {
-      final PassioFoodItem? foodItemResult = await NutritionAI.instance
-          .fetchFoodItemForProductCode('016000188853');
-      if (foodItemResult == null) {
+  // Expected Output: Result must be success, and chainOfThought should contain reasoning.
+  test('Fetch UPF rating for a visual food item test', () async {
+    await testWithFetchFoodItemForPassioID((foodItem) async {
+      if (foodItem == null) {
         fail('Failed to fetch food item for refCode');
       }
-      final PassioResult<PassioUPFRating> upfRatingResult = await NutritionAI
-          .instance
-          .fetchUltraProcessingFoodRating(foodItemResult);
-      switch (upfRatingResult) {
-        case Success():
-          expect(upfRatingResult.value, isNotNull);
-          expect(upfRatingResult.value.chainOfThought, isNotEmpty);
-          expect(upfRatingResult.value.highlightedIngredients, isNotEmpty);
-          expect(upfRatingResult.value.rating, greaterThanOrEqualTo(0));
-          break;
-        case Error():
-          fail('Expected Success but got Error: ${upfRatingResult.message}');
+      await testWithFetchUltraProcessingFoodRating(foodItem: foodItem,
+          (result) async {
+        switch (result) {
+          case Success():
+            expect(result.value.chainOfThought, isNotEmpty);
+            expect(result.value.highlightedIngredients, isEmpty);
+            expect(result.value.rating, greaterThanOrEqualTo(0));
+            break;
+          case Error():
+            fail('Expected Success but got Error: ${result.message}');
+        }
+      });
+    });
+  });
+
+  // Expected Output: Result must be non-null, chainOfThought and ingredients should not be empty, and rating should be >= 0.
+  test('Fetch UPF rating for a barcode item test', () async {
+    await testWithFetchFoodItemForProductCode((foodItem) async {
+      if (foodItem == null) {
+        fail('Failed to fetch food item for refCode');
       }
+      barcodeFoodItemResult = foodItem;
+      await testWithFetchUltraProcessingFoodRating(foodItem: foodItem,
+          (result) async {
+        switch (result) {
+          case Success():
+            expect(result.value, isNotNull);
+            expect(result.value.chainOfThought, isNotEmpty);
+            expect(result.value.highlightedIngredients, isNotEmpty);
+            expect(result.value.rating, greaterThanOrEqualTo(0));
+            break;
+          case Error():
+            fail('Expected Success but got Error: ${result.message}');
+        }
+      });
+    });
+  });
+
+  test(
+      'Set the SDK language to "es" and fetch UPF rating for a barcode item test',
+      () async {
+    await testWithLanguage((languageResult) async {
+      expect(languageResult, isTrue);
+
+      await testWithFetchUltraProcessingFoodRating(
+          foodItem: barcodeFoodItemResult!, (result) async {
+        switch (result) {
+          case Success():
+            expect(result.value, isNotNull);
+            expect(result.value.chainOfThought, isNotEmpty);
+            expect(result.value.highlightedIngredients, isNotEmpty);
+            expect(result.value.rating, greaterThanOrEqualTo(0));
+            break;
+          case Error():
+            fail('Expected Success but got Error: ${result.message}');
+        }
+      });
+    });
+  });
+
+  test('Fetch UPF rating for a barcode item without configureSDK', () async {
+    await testWithoutConfigureSDK(() async {
+      await testWithFetchUltraProcessingFoodRating(
+          foodItem: barcodeFoodItemResult!, (result) async {
+        switch (result) {
+          case Success():
+            fail('Expected Error but got Success: ${result.value}');
+          case Error():
+            expect(result.message, isNotEmpty);
+        }
+      });
     });
   });
 }

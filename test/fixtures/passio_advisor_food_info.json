@@ -173,6 +173,7 @@
           }
         },
         "metadata": {
+          "concerns": [10,20],
           "barcode": null,
           "foodOrigins": [],
           "tags": null,

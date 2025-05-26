@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
 import 'package:nutrition_ai_example/common/passio_image_widget.dart';
+import 'package:nutrition_ai_example/common/util/string_extensions.dart';
 import 'package:nutrition_ai_example/presentation/suggestion/bloc/suggestion_bloc.dart';
 import 'package:nutrition_ai_example/util/snackbar_extension.dart';
-import 'package:nutrition_ai_example/common/util/string_extensions.dart';
 
 class SuggestionPage extends StatefulWidget {
   const SuggestionPage({super.key});

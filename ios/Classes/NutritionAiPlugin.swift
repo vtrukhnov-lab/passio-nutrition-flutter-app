@@ -182,6 +182,22 @@ public class NutritionAiPlugin: NSObject, FlutterPlugin {
             fetchUltraProcessingFoodRating(arguments: call.arguments) { FlutterResult in
                 result(FlutterResult)
             }
+        case "generateMealPlan":
+            generateMealPlan(arguments: call.arguments) { FlutterResult in
+                result(FlutterResult)
+            }
+        case "generateMealPlanPreview":
+            generateMealPlanPreview(arguments: call.arguments) { FlutterResult in
+                result(FlutterResult)
+            }
+        case "recognizeSpeechRemoteWithGrouping":
+            recognizeSpeechRemoteWithGrouping(arguments: call.arguments) { FlutterResult in
+                result(FlutterResult)
+            }
+        case "recognizeImageRemoteWithGrouping":
+            recognizeImageRemoteWithGrouping(arguments: call.arguments) { FlutterResult in
+                result(FlutterResult)
+            }
         default:
             print("call.method = \(call.method) not in the list")
             result(FlutterMethodNotImplemented)
@@ -626,6 +642,11 @@ public class NutritionAiPlugin: NSObject, FlutterPlugin {
         }
     }
     
+    func shutDownPassioSDK(result: @escaping FlutterResult) {
+        passioSDK.shutDownPassioSDK()
+        result (nil)
+    }
+    
     private func fetchUltraProcessingFoodRating(arguments: Any?, result: @escaping FlutterResult) {
         guard let arguments = arguments as? [String: Any],
               let passioFoodItem = self.inputConverter.mapToPassioFoodItem(map: arguments)
@@ -635,6 +656,57 @@ public class NutritionAiPlugin: NSObject, FlutterPlugin {
         }
         passioSDK.fetchUltraProcessingFoodRating(passioFoodItem: passioFoodItem) { rating in
             result(self.outputConverter.mapFromPassioUPFRatingResult(rating))
+        }
+    }
+    
+    private func generateMealPlan(arguments: Any?, result: @escaping FlutterResult) {
+        guard let args = arguments as? String
+                else {
+            result(FlutterError(code: "ERROR", message: "Mapping error", details: nil))
+            return
+        }
+        passioSDK.generateMealPlan(request: args) { mealPlans in
+            result(self.outputConverter.mapFromPassioGeneratedMealPlanResult(mealPlans))
+        }
+    }
+    
+    private func generateMealPlanPreview(arguments: Any?, result: @escaping FlutterResult) {
+        guard let args = arguments as? String
+                else {
+            result(FlutterError(code: "ERROR", message: "Mapping error", details: nil))
+            return
+        }
+        passioSDK.generateMealPlanPreview(request: args) { mealPlans in
+            result(self.outputConverter.mapFromPassioGeneratedMealPlanResult(mealPlans))
+        }
+    }
+    
+    private func recognizeSpeechRemoteWithGrouping(arguments: Any?, result: @escaping FlutterResult) {
+        guard let args = arguments as? String
+                else {
+            result(FlutterError(code: "ERROR", message: "Mapping error", details: nil))
+            return
+        }
+        passioSDK.recognizeSpeechRemoteWithGrouping(text: args) { data in
+            result(self.outputConverter.mapFromPassioRecognitionResultRaw(data))
+        }
+    }
+    
+    private func recognizeImageRemoteWithGrouping(arguments: Any?, result: @escaping FlutterResult) {
+        guard let args = arguments as? [String: Any],
+              let bytes = args["bytes"] as? FlutterStandardTypedData,
+              let resolution = args["resolution"] as? String else {
+            result(nil)
+            return
+        }
+        let message = args["message"] as? String
+        let resolutionEnum = getPassioImageResolution(res: resolution)
+        guard let image = UIImage(data: bytes.data) else {
+            result(nil)
+            return
+        }
+        passioSDK.recognizeImageRemoteWithGrouping(image: image, resolution: resolutionEnum, message: message) { data in
+            result(self.outputConverter.mapFromPassioRecognitionResultRaw(data))
         }
     }
     

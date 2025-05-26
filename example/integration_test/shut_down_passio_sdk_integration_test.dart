@@ -1,21 +1,25 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
-import 'package:nutrition_ai_example/domain/entity/app_secret/app_secret.dart';
+
+import 'utils/sdk_utils.dart';
 
 void main() {
   setUpAll(() async {
-    // Configure the Passio SDK with a key for testing.
-    const configuration = PassioConfiguration(AppSecret.passioKey);
-    final status = await NutritionAI.instance.configureSDK(configuration);
-    expect(status.mode, PassioMode.isReadyForDetection);
+    await configureSDK();
   });
 
-  runTests();
+  runGroup();
+}
+
+void runGroup() {
+  group('shutDownPassioSDK tests', () {
+    runTests();
+  });
 }
 
 void runTests() {
   group('shutDownPassioSDK tests', () {
-    /*test('shutDownPassioSDK test', () async {
+    test('shutDownPassioSDK test', () async {
       try {
         await NutritionAI.instance.shutDownPassioSDK();
       } catch (e) {
@@ -23,16 +27,18 @@ void runTests() {
       }
     });
 
+    // TODO: Not working on iOS.
     test('shutDownPassioSDK without configureSDK', () async {
       try {
-        testWithoutConfigureSDK(() async {
+        await testWithoutConfigureSDK(() async {
           await NutritionAI.instance.shutDownPassioSDK();
         });
       } catch (e) {
         fail('Failed to shut down Passio SDK: $e');
       }
-    });*/
+    });
 
+    // TODO: Not working on Android.
     test('searchForFood call after shutDownPassioSDK', () async {
       try {
         await NutritionAI.instance.shutDownPassioSDK();

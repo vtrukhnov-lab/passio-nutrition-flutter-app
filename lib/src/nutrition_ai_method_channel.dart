@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'dart:core';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:nutrition_ai/src/models/passio_nutrition_facts.dart';
 import 'package:nutrition_ai/src/models/passio_token_budget.dart';
 
 import 'converter/platform_input_converter.dart';
 import 'converter/platform_output_converter.dart';
-import 'listeners/nutrition_facts_recognition_listener.dart';
 import 'listeners/passio_account_listener.dart';
 import 'models/enums.dart';
 import 'models/inflammatory_effect_data.dart';
@@ -18,17 +15,19 @@ import 'models/passio_advisor_response.dart';
 import 'models/passio_camera_zoom_level.dart';
 import 'models/passio_food_data_info.dart';
 import 'models/passio_food_item.dart';
+import 'models/passio_generated_meal_plan.dart';
 import 'models/passio_meal_plan.dart';
 import 'models/passio_meal_plan_item.dart';
-import 'models/passio_status.dart';
-import 'util/passio_result.dart';
+import 'models/passio_recognition_result.dart';
 import 'models/passio_search_response.dart';
 import 'models/passio_speech_recognition_model.dart';
+import 'models/passio_status.dart';
 import 'models/passio_upf_rating.dart';
 import 'models/platform_image.dart';
 import 'nutrition_ai_configuration.dart';
 import 'nutrition_ai_detection.dart';
 import 'nutrition_ai_platform_interface.dart';
+import 'util/passio_result.dart';
 
 /// An implementation of [NutritionAIPlatform] that uses method channels.
 class MethodChannelNutritionAI extends NutritionAIPlatform {
@@ -64,11 +63,6 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
   /// The [_statusStream] variable holds the subscription to a stream that listens for events related to Passio status changes.
   /// such as 'onPassioStatusChanged', 'onCompletedDownloadingAllFiles', 'onCompletedDownloadingFile', and 'onDownloadError'.
   StreamSubscription? _statusStream;
-
-  /// A subscription to a stream that listens for events related to nutrition facts.
-  ///
-  /// The [_nutritionFactsStream] variable holds the subscription to a stream that listens for events related to nutrition facts.
-  StreamSubscription? _nutritionFactsStream;
 
   StreamSubscription? _accountStream;
 
@@ -156,7 +150,6 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
     if (responseMap == null) {
       return null;
     }
-
     Map<String, dynamic> foodItemMap = responseMap!.cast<String, dynamic>();
     return PassioFoodItem.fromJson(foodItemMap);
   }
@@ -221,21 +214,6 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
     }
 
     return mapDynamicListToListOfString(responseMap);
-  }
-
-  @override
-  Future<Rectangle<double>> transformCGRectForm(
-      Rectangle<double> boundingBox, Rectangle<double> toRect) async {
-    var args = {
-      'boundingBox': mapRectangle(boundingBox),
-      'toRect': mapRectangle(toRect)
-    };
-    var response =
-        await methodChannel.invokeMethod('transformCGRectForm', args);
-    List<double> boxArray = response.cast<double>();
-    var finalRect =
-        Rectangle<double>(boxArray[0], boxArray[1], boxArray[2], boxArray[3]);
-    return finalRect;
   }
 
   /// Sets a listener for Passio status changes.
@@ -436,6 +414,19 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
   }
 
   @override
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeSpeechRemoteWithGrouping(String text) async {
+    final Map<String, dynamic> result = (await methodChannel.invokeMethod(
+            'recognizeSpeechRemoteWithGrouping', text))
+        .cast<String, dynamic>();
+    return mapToPassioResultGeneric<PassioRecognitionResult, Map>(
+      result,
+      (value) =>
+          PassioRecognitionResult.fromJson(value.cast<String, dynamic>()),
+    );
+  }
+
+  @override
   Future<List<PassioAdvisorFoodInfo>> recognizeImageRemote(Uint8List bytes,
       {required PassioImageResolution resolution, String? message}) async {
     // Prepare arguments for method call
@@ -464,40 +455,28 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
   }
 
   @override
-  void startNutritionFactsDetection(
-      NutritionFactsRecognitionListener listener) {
-    // Prepare arguments for setting up the Passio status listener.
-    var args = {'method': 'startNutritionFactsDetection'};
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeImageRemoteWithGrouping(Uint8List bytes,
+          {required PassioImageResolution resolution, String? message}) async {
+    // Prepare arguments for method call
+    var args = {
+      'bytes': bytes,
+      'resolution': resolution.name,
+      'message': message
+    };
 
-    // Receive the broadcast stream and listen for events.
-    _nutritionFactsStream =
-        nutritionFactsChannel.receiveBroadcastStream(args).listen((event) {
-      if (event == null) {
-        return;
-      }
+    // Call the platform method to perform remote image recognition.
+    final Map<String, dynamic> result = (await methodChannel.invokeMethod(
+      'recognizeImageRemoteWithGrouping',
+      args,
+    ))
+        .cast<String, dynamic>();
 
-      // Creating a mutable map to store results
-      Map<String, dynamic> resultMap = event.cast<String, dynamic>();
-
-      // Retrieving the "candidates" key from the resultMap and casting its value to a Map<String, dynamic>
-      final nutritionFactsMap =
-          resultMap["nutritionFacts"]?.cast<String, dynamic>();
-      // Converting the mapped candidates back to a FoodCandidates
-      final nutritionFacts = nutritionFactsMap != null
-          ? PassioNutritionFacts.fromJson(nutritionFactsMap)
-          : null;
-
-      final text = resultMap['text'] as String?;
-
-      listener.onNutritionFactsRecognized(nutritionFacts, text);
-    });
-  }
-
-  @override
-  Future<void> stopNutritionFactsDetection() async {
-    await _nutritionFactsStream?.cancel();
-    _nutritionFactsStream = null;
-    return;
+    return mapToPassioResultGeneric<PassioRecognitionResult, Map>(
+      result,
+      (value) =>
+          PassioRecognitionResult.fromJson(value.cast<String, dynamic>()),
+    );
   }
 
   @override
@@ -577,9 +556,11 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
               'fetchHiddenIngredients', foodName))!
           .cast<String, dynamic>();
 
-      return mapToPassioResultGeneric<List<PassioAdvisorFoodInfo>, List<Map>>(
-          responseMap,
-          (value) => mapListOfObjects(value, PassioAdvisorFoodInfo.fromJson));
+      return mapToPassioResultGeneric<List<PassioAdvisorFoodInfo>,
+          List<Object?>>(
+        responseMap,
+        (list) => mapListOfObjects(list, PassioAdvisorFoodInfo.fromJson),
+      );
     } on PlatformException catch (e) {
       return Error(e.message ?? '');
     } on Exception catch (e) {
@@ -595,9 +576,11 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
               'fetchVisualAlternatives', foodName))!
           .cast<String, dynamic>();
 
-      return mapToPassioResultGeneric<List<PassioAdvisorFoodInfo>, List<Map>>(
-          responseMap,
-          (value) => mapListOfObjects(value, PassioAdvisorFoodInfo.fromJson));
+      return mapToPassioResultGeneric<List<PassioAdvisorFoodInfo>,
+          List<Object?>>(
+        responseMap,
+        (list) => mapListOfObjects(list, PassioAdvisorFoodInfo.fromJson),
+      );
     } on PlatformException catch (e) {
       return Error(e.message ?? '');
     } on Exception catch (e) {
@@ -613,9 +596,11 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
               'fetchPossibleIngredients', foodName))!
           .cast<String, dynamic>();
 
-      return mapToPassioResultGeneric<List<PassioAdvisorFoodInfo>, List<Map>>(
-          responseMap,
-          (value) => mapListOfObjects(value, PassioAdvisorFoodInfo.fromJson));
+      return mapToPassioResultGeneric<List<PassioAdvisorFoodInfo>,
+          List<Object?>>(
+        responseMap,
+        (list) => mapListOfObjects(list, PassioAdvisorFoodInfo.fromJson),
+      );
     } on PlatformException catch (e) {
       return Error(e.message ?? '');
     } on Exception catch (e) {
@@ -808,5 +793,31 @@ class MethodChannelNutritionAI extends NutritionAIPlatform {
 
     return mapToPassioResultGeneric<PassioUPFRating, Map>(result,
         (value) => PassioUPFRating.fromJson(value.cast<String, dynamic>()));
+  }
+
+  @override
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlan(
+      String request) async {
+    final Map<String, dynamic> result =
+        (await methodChannel.invokeMethod('generateMealPlan', request))
+            .cast<String, dynamic>();
+    return mapToPassioResultGeneric<PassioGeneratedMealPlan, Map>(
+      result,
+      (value) =>
+          PassioGeneratedMealPlan.fromJson(value.cast<String, dynamic>()),
+    );
+  }
+
+  @override
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlanPreview(
+      String request) async {
+    final Map<String, dynamic> result =
+        (await methodChannel.invokeMethod('generateMealPlanPreview', request))
+            .cast<String, dynamic>();
+    return mapToPassioResultGeneric<PassioGeneratedMealPlan, Map>(
+      result,
+      (value) =>
+          PassioGeneratedMealPlan.fromJson(value.cast<String, dynamic>()),
+    );
   }
 }

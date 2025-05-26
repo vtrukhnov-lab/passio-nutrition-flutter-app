@@ -362,6 +362,7 @@
       "id": "1603211585443",
       "metadata": {
         "barcode": null,
+        "concerns": [10,20],
         "ingredientsDescription": null,
         "foodOrigins": [
           {

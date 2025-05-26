@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:language_picker/language_picker_dialog.dart';
 import 'package:language_picker/languages.dart';
@@ -24,9 +23,9 @@ import 'package:nutrition_ai_example/presentation/suggestion/suggestion_page.dar
 import 'package:nutrition_ai_example/presentation/third_party_camera/third_party_camera_page.dart';
 import 'package:nutrition_ai_example/router/routes.dart';
 
+import 'locale/app_localizations.dart';
 import 'presentation/advisor_message/advisor_message_page.dart';
 import 'presentation/legacy_api/legacy_api_page.dart';
-import 'presentation/nutrition_facts/nutrition_facts_page.dart';
 import 'presentation/recognize_image/recognize_image_page.dart';
 import 'presentation/recognize_nutrition_facts/recognize_nutrition_facts_page.dart';
 import 'presentation/search_food_semantic/search_food_semantic_page.dart';
@@ -71,8 +70,6 @@ Future<void> main() async {
                   const RecognizeSpeechPage(),
               Routes.recognizedImagePage: (context) =>
                   const RecognizeImagePage(),
-              Routes.nutritionFactsPage: (context) =>
-                  const NutritionFactsPage(),
               Routes.advisorMessagePage: (context) =>
                   const AdvisorMessagePage(),
               Routes.advisorImagePage: (context) => const AdvisorImagePage(),

@@ -37,7 +37,7 @@ class AppPopupWidget<T> extends StatelessWidget {
             side: BorderSide(color: AppColors.gray300),
           ),
           elevation: 10,
-          shadowColor: AppColors.black.withOpacity(0.16),
+          shadowColor: AppColors.black.withValues(alpha: 0.16),
         ),
       ),
       child: PopupMenuButton<T>(

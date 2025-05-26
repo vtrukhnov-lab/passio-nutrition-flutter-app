@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
-import 'package:nutrition_ai_example/domain/entity/app_secret/app_secret.dart';
 
 import 'advisor_fetch_ingredients_integration_test.dart'
     as advisor_fetch_ingredients;
@@ -13,95 +12,51 @@ import 'fetch_food_item_for_data_info_integration_test.dart'
     as fetch_food_item_for_data_info;
 import 'fetch_food_item_for_passio_id_integration_test.dart'
     as fetch_food_item_for_passio_id;
-import 'fetch_food_item_for_product_code_integration_test.dart'
-    as fetch_food_item_for_product_code;
-import 'fetch_food_item_for_ref_code_integration_test.dart'
-    as fetch_food_item_for_ref_code;
-import 'fetch_food_item_legacy_integration_test.dart' as fetch_food_item_legacy;
-import 'fetch_hidden_ingredients_integration_test.dart'
-    as fetch_hidden_ingredients;
-import 'fetch_icon_for_integration_test.dart' as fetch_icon_for;
-import 'fetch_inflammatory_effect_data_integration_test.dart'
-    as fetch_inflammatory_effect_data;
-import 'fetch_meal_plan_for_day_integration_test.dart'
-    as fetch_meal_plan_for_day;
-import 'fetch_meal_plans_integration_test.dart' as fetch_meal_plans;
-import 'fetch_possible_ingredients_integration_test.dart'
-    as fetch_possible_ingredients;
-import 'fetch_suggestions_integration_test.dart' as fetch_suggestions;
-import 'fetch_tags_for_integration_test.dart' as fetch_tags_for;
-import 'fetch_visual_alternatives_integration_test.dart'
-    as fetch_visual_alternatives;
-import 'icon_url_for_integration_test.dart' as icon_url_for;
-import 'lookup_icons_for_integration_test.dart' as lookup_icons_for;
-import 'predict_next_ingredients_integration_test.dart'
-    as predict_next_ingredients;
-import 'recognize_image_remote_integration_test.dart' as recognize_image_remote;
-import 'recognize_nutrition_facts_remote_integration_test.dart'
-    as recognize_nutrition_facts_remote;
-import 'recognize_speech_remote_integration_test.dart'
-    as recognize_speech_remote;
-import 'report_food_item_integration_test.dart' as report_food_item;
-import 'search_for_food_integration_test.dart' as search_for_food;
-import 'search_for_food_semantic_integration_test.dart'
-    as search_for_food_semantic;
-import 'set_account_listener_integration_test.dart' as set_account_listener;
-import 'set_passio_status_listener_integration_test.dart'
-    as set_passio_status_listener;
-import 'shut_down_passio_sdk_integration_test.dart' as shut_down_passio_sdk;
-import 'submit_user_created_food_integration_test.dart'
-    as submit_user_created_food;
-import 'transform_cg_rect_form_integration_test.dart' as transform_cg_rect_form;
-import 'update_language_integration_test.dart' as update_language;
+import 'utils/sdk_utils.dart';
 
-Future<void> main() async {
+void main() {
   setUpAll(() async {
-    // Configure the Passio SDK with a key for testing.
-    const configuration = PassioConfiguration(AppSecret.passioKey);
-    final status = await NutritionAI.instance.configureSDK(configuration);
-    expect(status.mode, PassioMode.isReadyForDetection);
+    await configureSDK();
   });
 
-  advisor_fetch_ingredients.runTests();
-  advisor_init_conversation.runTests();
-  advisor_send_image.runTests();
-  advisor_send_message.runTests();
-  configure_sdk.runTests();
-  fetch_food_item_for_data_info.runTests();
-  fetch_food_item_for_passio_id.runTests();
-  fetch_food_item_for_product_code.runTests();
-  fetch_food_item_for_ref_code.runTests();
-  fetch_food_item_legacy.runTests();
-  fetch_hidden_ingredients.runTests();
-  fetch_icon_for.runTests();
-  fetch_inflammatory_effect_data.runTests();
-  fetch_meal_plan_for_day.runTests();
-  fetch_meal_plans.runTests();
-  fetch_possible_ingredients.runTests();
-  fetch_suggestions.runTests();
-  fetch_tags_for.runTests();
-  fetch_visual_alternatives.runTests();
-  icon_url_for.runTests();
-  lookup_icons_for.runTests();
-  predict_next_ingredients.runTests();
-  recognize_image_remote.runTests();
-  recognize_nutrition_facts_remote.runTests();
-  recognize_speech_remote.runTests();
-  report_food_item.runTests();
-  search_for_food.runTests();
-  search_for_food_semantic.runTests();
-  set_account_listener.runTests();
-  set_passio_status_listener.runTests();
-  shut_down_passio_sdk.runTests();
-  submit_user_created_food.runTests();
-  transform_cg_rect_form.runTests();
-  update_language.runTests();
+  // advisor_fetch_ingredients.runGroup();
+  // advisor_init_conversation.runGroup();
+  // advisor_send_image.runGroup();
+  // advisor_send_message.runGroup();
+  // configure_sdk.runGroup();
+  // fetch_food_item_for_data_info.runGroup();
+  fetch_food_item_for_passio_id.runGroup();
+  // fetch_food_item_for_product_code.runGroup();
+  // fetch_food_item_for_ref_code.runGroup();
+  // fetch_food_item_legacy.runGroup();
+  // fetch_hidden_ingredients.runGroup();
+  // fetch_icon_for.runGroup();
+  // fetch_inflammatory_effect_data.runGroup();
+  // fetch_meal_plan_for_day.runGroup();
+  // fetch_meal_plans.runGroup();
+  // fetch_possible_ingredients.runGroup();
+  // fetch_suggestions.runGroup();
+  // fetch_tags_for.runGroup();
+  // fetch_ultra_processing_food_rating.runGroup();
+  // fetch_visual_alternatives.runGroup();
+  // get_sdk_version.runGroup();
+  // icon_url_for.runGroup();
+  // lookup_icons_for.runGroup();
+  // predict_next_ingredients.runGroup();
+  // recognize_image_remote.runGroup();
+  // recognize_nutrition_facts_remote.runGroup();
+  // recognize_speech_remote.runGroup();
+  // report_food_item.runGroup();
+  // search_for_food.runGroup();
+  // search_for_food_semantic.runGroup();
+  // set_account_listener.runGroup();
+  // set_passio_status_listener.runGroup();
+  // shut_down_passio_sdk.runGroup();
+  // submit_user_created_food.runGroup();
+  // transform_cg_rect_form.runGroup();
+  // update_language.runGroup();
 
   tearDownAll(() async {
-    // Clean up any resources or configurations if needed.
     await NutritionAI.instance.shutDownPassioSDK();
   });
 }
-
-/*
-  */

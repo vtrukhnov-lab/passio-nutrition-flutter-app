@@ -104,15 +104,6 @@ fun framesPerSecondFromString(fps: String): PassioSDK.FramesPerSecond {
     }
 }
 
-fun mapToRectF(map: Map<String, Any?>): RectF {
-    return RectF(
-        (map["left"] as? Double)?.toFloat() ?: 0f,
-        (map["top"] as? Double)?.toFloat() ?: 0f,
-        ((map["left"] as? Double) ?: 0.0).toFloat() + ((map["width"] as? Double) ?: 0.0).toFloat(),
-        ((map["top"] as? Double) ?: 0.0).toFloat() + ((map["height"] as? Double) ?: 0.0).toFloat(),
-    )
-}
-
 fun mapToFetchFoodItemForDataInfo(map: Map<String, Any?>): Triple<PassioFoodDataInfo, Double?, String?> {
     val foodDataInfo = map["foodDataInfo"] as Map<String, Any>
     val passioFoodDataInfo = mapToPassioFoodDataInfo(foodDataInfo)

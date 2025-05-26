@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
-import '../../../common/util/double_extension.dart';
 
 import '../../../common/constant/app_constants.dart';
 import '../../../common/util/context_extension.dart';
+import '../../../common/util/double_extension.dart';
 import '../../../common/util/string_extensions.dart';
 import '../../../common/widgets/app_loading_button_widget.dart';
 import '../../../common/widgets/passio_image_widget.dart';

@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:nutrition_ai/src/models/enums.dart';
@@ -6,23 +5,24 @@ import 'package:nutrition_ai/src/models/passio_advisor_food_info.dart';
 import 'package:nutrition_ai/src/models/passio_advisor_response.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'listeners/nutrition_facts_recognition_listener.dart';
 import 'listeners/passio_account_listener.dart';
 import 'models/inflammatory_effect_data.dart';
 import 'models/passio_camera_zoom_level.dart';
 import 'models/passio_food_data_info.dart';
 import 'models/passio_food_item.dart';
+import 'models/passio_generated_meal_plan.dart';
 import 'models/passio_meal_plan.dart';
 import 'models/passio_meal_plan_item.dart';
-import 'models/passio_status.dart';
-import 'util/passio_result.dart';
+import 'models/passio_recognition_result.dart';
 import 'models/passio_search_response.dart';
 import 'models/passio_speech_recognition_model.dart';
+import 'models/passio_status.dart';
 import 'models/passio_upf_rating.dart';
 import 'models/platform_image.dart';
 import 'nutrition_ai_configuration.dart';
 import 'nutrition_ai_detection.dart';
 import 'nutrition_ai_method_channel.dart';
+import 'util/passio_result.dart';
 
 abstract class NutritionAIPlatform extends PlatformInterface {
   /// Constructs a NutritionAiPlatform.
@@ -100,12 +100,6 @@ abstract class NutritionAIPlatform extends PlatformInterface {
     throw UnimplementedError('fetchTagsFor(String refCode)');
   }
 
-  Future<Rectangle<double>> transformCGRectForm(
-      Rectangle<double> boundingBox, Rectangle<double> toRect) {
-    throw UnimplementedError(
-        'transformCGRectForm(Rectangle<double> boundingBox, Rectangle<double> toRect');
-  }
-
   void setPassioStatusListener(PassioStatusListener? listener) {
     throw UnimplementedError(
         'setPassioStatusListener(PassioStatusListener? listener)');
@@ -147,16 +141,6 @@ abstract class NutritionAIPlatform extends PlatformInterface {
       {required PassioImageResolution resolution, String? message}) {
     throw UnimplementedError(
         'recognizeImageRemote(Uint8List bytes, PassioImageResolution resolution)');
-  }
-
-  void startNutritionFactsDetection(
-      NutritionFactsRecognitionListener listener) async {
-    throw UnimplementedError(
-        'startNutritionFactsDetection(NutritionFactsRecognitionListener listener)');
-  }
-
-  Future<void> stopNutritionFactsDetection() async {
-    throw UnimplementedError('stopNutritionFactsDetection()');
   }
 
   Future<PassioResult> initConversation() {
@@ -262,5 +246,27 @@ abstract class NutritionAIPlatform extends PlatformInterface {
       PassioFoodItem item) async {
     throw UnimplementedError(
         'fetchUltraProcessingFoodRating(PassioFoodItem item)');
+  }
+
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlan(
+      String request) {
+    throw UnimplementedError('generateMealPlan(String request)');
+  }
+
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlanPreview(
+      String request) {
+    throw UnimplementedError('generateMealPlanPreview(String request)');
+  }
+
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeSpeechRemoteWithGrouping(String text) {
+    throw UnimplementedError('recognizeSpeechRemoteWithGrouping(String text)');
+  }
+
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeImageRemoteWithGrouping(Uint8List bytes,
+          {required PassioImageResolution resolution, String? message}) {
+    throw UnimplementedError(
+        'recognizeImageRemoteWithGrouping(Uint8List bytes,{required PassioImageResolution resolution, String? message})');
   }
 }

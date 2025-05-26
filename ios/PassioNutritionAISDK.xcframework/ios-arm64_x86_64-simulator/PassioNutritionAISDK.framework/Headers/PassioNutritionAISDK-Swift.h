@@ -320,6 +320,7 @@ SWIFT_CLASS("_TtC20PassioNutritionAISDK26AVCaptureViedeoPreviewView")
 
 
 
+
 #endif
 #if __has_attribute(external_source_symbol)
 # pragma clang attribute pop
@@ -642,6 +643,7 @@ SWIFT_CLASS("_TtC20PassioNutritionAISDK26AVCaptureViedeoPreviewView")
 - (void)layoutSubviews;
 - (nonnull instancetype)initWithFrame:(CGRect)frame SWIFT_UNAVAILABLE;
 @end
+
 
 
 

@@ -7,12 +7,13 @@ import ai.passio.nutrition_ai.converter.mapFromCompletedDownloadingFile
 import ai.passio.nutrition_ai.converter.mapFromFoodCandidates
 import ai.passio.nutrition_ai.converter.mapFromInflammatoryEffectData
 import ai.passio.nutrition_ai.converter.mapFromMinMaxCameraZoomLevel
-import ai.passio.nutrition_ai.converter.mapFromNutritionFactsRecognitionListener
 import ai.passio.nutrition_ai.converter.mapFromPassioAdvisorFoodInfo
 import ai.passio.nutrition_ai.converter.mapFromPassioFoodDataInfo
 import ai.passio.nutrition_ai.converter.mapFromPassioFoodItem
+import ai.passio.nutrition_ai.converter.mapFromPassioGeneratedMealPlanResult
 import ai.passio.nutrition_ai.converter.mapFromPassioMealPlan
 import ai.passio.nutrition_ai.converter.mapFromPassioMealPlanItem
+import ai.passio.nutrition_ai.converter.mapFromPassioRecognitionResultRaw
 import ai.passio.nutrition_ai.converter.mapFromPassioResult
 import ai.passio.nutrition_ai.converter.mapFromPassioSpeechRecognitionModel
 import ai.passio.nutrition_ai.converter.mapFromPassioStatus
@@ -24,7 +25,6 @@ import ai.passio.nutrition_ai.converter.mapToFetchFoodItemForDataInfo
 import ai.passio.nutrition_ai.converter.mapToFoodDetectionConfiguration
 import ai.passio.nutrition_ai.converter.mapToPassioConfiguration
 import ai.passio.nutrition_ai.converter.mapToPassioFoodItem
-import ai.passio.nutrition_ai.converter.mapToRectF
 import ai.passio.nutrition_ai.converter.passioImageResolutionFromString
 import ai.passio.nutrition_ai.view.NativePreviewFactory
 import ai.passio.passiosdk.core.config.Bridge
@@ -32,14 +32,13 @@ import ai.passio.passiosdk.core.config.PassioMode
 import ai.passio.passiosdk.core.config.PassioStatus
 import ai.passio.passiosdk.passiofood.FoodCandidates
 import ai.passio.passiosdk.passiofood.FoodRecognitionListener
-import ai.passio.passiosdk.passiofood.NutritionFactsRecognitionListener
 import ai.passio.passiosdk.passiofood.PassioAccountListener
 import ai.passio.passiosdk.passiofood.PassioID
 import ai.passio.passiosdk.passiofood.PassioMealTime
 import ai.passio.passiosdk.passiofood.PassioSDK
 import ai.passio.passiosdk.passiofood.PassioStatusListener
 import ai.passio.passiosdk.passiofood.data.model.PassioTokenBudget
-import ai.passio.passiosdk.passiofood.nutritionfacts.PassioNutritionFacts
+import android.R.attr.text
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -69,54 +68,62 @@ class NutritionAIHandler(
             "fetchFoodItemForPassioID" -> fetchFoodItemForPassioID(call.arguments as String, result)
             "searchForFood" -> searchForFood(call.arguments as String, result)
             "fetchFoodItemForDataInfo" -> fetchFoodItemForDataInfo(
-                call.arguments as HashMap<String, Any>,
-                result
+                call.arguments as HashMap<String, Any>, result
             )
 
             "fetchFoodItemForProductCode" -> fetchFoodItemForProductCode(
-                call.arguments as String,
-                result
+                call.arguments as String, result
             )
 
             "fetchTagsFor" -> fetchTagsFor(call.arguments as String, result)
             "iconURLFor" -> fetchURLFor(call.arguments as HashMap<String, Any>, result)
-            "transformCGRectForm" -> transformRect(call.arguments as HashMap<String, Any>, result)
             "fetchInflammatoryEffectData" -> fetchInflammatoryEffectData(
-                call.arguments as String,
-                result
+                call.arguments as String, result
             )
 
             "fetchSuggestions" -> fetchSuggestions(call.arguments as String, result)
             "fetchMealPlans" -> fetchMealPlans(result)
             "fetchMealPlanForDay" -> fetchMealPlanForDay(
-                call.arguments as HashMap<String, Any>,
-                result
+                call.arguments as HashMap<String, Any>, result
             )
 
             "fetchFoodItemForRefCode" -> fetchFoodItemForRefCode(call.arguments as String, result)
             "fetchFoodItemLegacy" -> fetchFoodItemLegacy(call.arguments as String, result)
             "recognizeSpeechRemote" -> recognizeSpeechRemote(call.arguments as String, result)
+            "recognizeSpeechRemoteWithGrouping" -> recognizeSpeechRemoteWithGrouping(call.arguments as String, result)
             "recognizeImageRemote" -> recognizeImageRemote(
-                call.arguments as HashMap<String, Any>,
-                result
+                call.arguments as HashMap<String, Any>, result
             )
-
+            "recognizeImageRemoteWithGrouping" -> recognizeImageRemoteWithGrouping(call.arguments as HashMap<String, Any>, result)
             "fetchHiddenIngredients" -> fetchHiddenIngredients(call.arguments as String, result)
             "fetchVisualAlternatives" -> fetchVisualAlternatives(call.arguments as String, result)
             "fetchPossibleIngredients" -> fetchPossibleIngredients(call.arguments as String, result)
             "enableFlashlight" -> enableFlashlight(call.arguments as HashMap<String, Any>, result)
             "setCameraZoom" -> setCameraZoom(call.arguments as HashMap<String, Any>, result)
             "getMinMaxCameraZoomLevel" -> getMinMaxCameraZoomLevel(result)
-            "recognizeNutritionFactsRemote" -> recognizeNutritionFactsRemote(call.arguments as HashMap<String, Any>, result)
+            "recognizeNutritionFactsRemote" -> recognizeNutritionFactsRemote(
+                call.arguments as HashMap<String, Any>, result
+            )
+
             "updateLanguage" -> updateLanguage(call.arguments as String, result)
-            "reportFoodItem" -> reportFoodItem(call.arguments as HashMap<String, Any>,  result)
-            "submitUserCreatedFood" -> submitUserCreatedFood(call.arguments as HashMap<String, Any>,  result)
-            "searchForFoodSemantic" -> searchForFoodSemantic(call.arguments as String,  result)
-            "predictNextIngredients" -> predictNextIngredients(call.arguments as HashMap<String, Any>,  result)
+            "reportFoodItem" -> reportFoodItem(call.arguments as HashMap<String, Any>, result)
+            "submitUserCreatedFood" -> submitUserCreatedFood(
+                call.arguments as HashMap<String, Any>, result
+            )
+
+            "searchForFoodSemantic" -> searchForFoodSemantic(call.arguments as String, result)
+            "predictNextIngredients" -> predictNextIngredients(
+                call.arguments as HashMap<String, Any>, result
+            )
+
             "startCamera" -> startCamera(result)
             "stopCamera" -> stopCamera(result)
             "shutDownPassioSDK" -> shutDownPassioSDK(result)
-            "fetchUltraProcessingFoodRating" -> fetchUltraProcessingFoodRating(call.arguments as HashMap<String, Any>,  result)
+            "fetchUltraProcessingFoodRating" -> fetchUltraProcessingFoodRating(
+                call.arguments as HashMap<String, Any>, result
+            )
+            "generateMealPlan" -> generateMealPlan(call.arguments as String, result)
+            "generateMealPlanPreview" -> generateMealPlanPreview(call.arguments as String, result)
         }
     }
 
@@ -146,9 +153,7 @@ class NutritionAIHandler(
         val icon = iconSizeFromString(iconSizeString)
 
         PassioSDK.instance.fetchIconFor(
-            activity.applicationContext,
-            passioID,
-            icon
+            activity.applicationContext, passioID, icon
         ) inner@{ drawable ->
             if (drawable == null) {
                 callback.success(null)
@@ -223,7 +228,6 @@ class NutritionAIHandler(
             "startFoodDetection" -> startFoodDetection(argMap["args"] as Map<String, Any>, events)
             // Sets up the PassioSDK status listener.
             "setPassioStatusListener" -> setPassioStatusListener(events)
-            "startNutritionFactsDetection" -> startNutritionFactsDetection(events)
             "setAccountListener" -> setAccountListener(events)
         }
     }
@@ -236,12 +240,11 @@ class NutritionAIHandler(
             "startFoodDetection" -> PassioSDK.instance.stopFoodDetection()
             // Removes the PassioSDK status listener to stop receiving status updates.
             "setPassioStatusListener" -> PassioSDK.instance.setPassioStatusListener(null)
-            "startNutritionFactsDetection" -> PassioSDK.instance.stopNutritionFactsDetection()
             "setAccountListener" -> PassioSDK.instance.setAccountListener(null)
         }
     }
 
-    private  fun startCamera(callback: MethodChannel.Result) {
+    private fun startCamera(callback: MethodChannel.Result) {
         previewFactory.startCamera()
         callback.success(null)
     }
@@ -295,11 +298,12 @@ class NutritionAIHandler(
     }
 
     private fun fetchFoodItemForDataInfo(
-        args: HashMap<String, Any>,
-        callback: MethodChannel.Result
+        args: HashMap<String, Any>, callback: MethodChannel.Result
     ) {
         val (foodDataInfo, servingQuantity, servingUnit) = mapToFetchFoodItemForDataInfo(args)
-        PassioSDK.instance.fetchFoodItemForDataInfo(foodDataInfo, servingQuantity, servingUnit) { foodItem ->
+        PassioSDK.instance.fetchFoodItemForDataInfo(
+            foodDataInfo, servingQuantity, servingUnit
+        ) { foodItem ->
             if (foodItem == null) {
                 callback.success(null)
             } else {
@@ -337,26 +341,6 @@ class NutritionAIHandler(
 
         val url = PassioSDK.instance.iconURLFor(passioID, icon)
         callback.success(url)
-    }
-
-    private fun transformRect(args: HashMap<String, Any>, callback: MethodChannel.Result) {
-        val boundingBox = mapToRectF(args["boundingBox"] as Map<String, Any?>)
-        val toRect = mapToRectF(args["toRect"] as Map<String, Any?>)
-
-        val resultRect = PassioSDK.instance.boundingBoxToViewTransform(
-            boundingBox,
-            toRect.width().toInt(),
-            toRect.height().toInt(),
-        )
-
-        callback.success(
-            doubleArrayOf(
-                resultRect.left.toDouble(),
-                resultRect.top.toDouble(),
-                resultRect.width().toDouble(),
-                resultRect.height().toDouble()
-            )
-        )
     }
 
     /**
@@ -412,8 +396,7 @@ class NutritionAIHandler(
             override fun onCompletedDownloadingAllFiles(fileUris: List<Uri>) {
                 val files = fileUris.map(Uri::toString)
                 val statusListenerMap = mapFromPassioStatusListener(
-                    "completedDownloadingAllFiles",
-                    files
+                    "completedDownloadingAllFiles", files
                 )
                 events.success(statusListenerMap)
             }
@@ -547,6 +530,13 @@ class NutritionAIHandler(
         }
     }
 
+    private fun recognizeSpeechRemoteWithGrouping(text: String, callback: MethodChannel.Result) {
+        PassioSDK.instance.recognizeSpeechRemoteWithGrouping(text) { result ->
+            val resultMap = mapFromPassioRecognitionResultRaw(result)
+            callback.success(resultMap)
+        }
+    }
+
     /**
      * Recognizes an image remotely using the PassioSDK.
      *
@@ -569,30 +559,29 @@ class NutritionAIHandler(
 
         // Call the recognizeImageRemote method on the PassioSDK instance.
         PassioSDK.instance.recognizeImageRemote(
-            bitmap,
-            resolutionEnum,
-            message
+            bitmap, resolutionEnum, message
         ) { imageRecognitionModel ->
             // Map the SpeechRecognitionModel object to a new object.
-            val mappedResult =
-                imageRecognitionModel.map { mapFromPassioAdvisorFoodInfo(it) }
+            val mappedResult = imageRecognitionModel.map { mapFromPassioAdvisorFoodInfo(it) }
 
             // Return the mapped result using the callback.
             callback.success(mappedResult)
         }
     }
 
-    private fun startNutritionFactsDetection(events: EventChannel.EventSink) {
-        PassioSDK.instance.startNutritionFactsDetection(
-            object : NutritionFactsRecognitionListener {
-                override fun onRecognitionResult(
-                    nutritionFacts: PassioNutritionFacts?,
-                    text: String
-                ) {
-                    events.success(mapFromNutritionFactsRecognitionListener(nutritionFacts, text))
-                }
-            },
-        )
+    private fun recognizeImageRemoteWithGrouping(args: Map<String, Any>, callback: MethodChannel.Result) {
+        val bytes = args["bytes"] as ByteArray
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+        val resolution = args["resolution"] as String
+        val resolutionEnum = passioImageResolutionFromString(resolution)
+
+        val message = args["message"] as String?
+
+        PassioSDK.instance.recognizeImageRemoteWithGrouping(bitmap, resolutionEnum, message) { result ->
+            val resultMap = mapFromPassioRecognitionResultRaw(result)
+            callback.success(resultMap)
+        }
     }
 
     /**
@@ -678,8 +667,7 @@ class NutritionAIHandler(
     }
 
     private fun recognizeNutritionFactsRemote(
-        args: Map<String, Any>,
-        callback: MethodChannel.Result
+        args: Map<String, Any>, callback: MethodChannel.Result
     ) {
         // Extract the byte array from the arguments.
         val bytes = args["bytes"] as ByteArray
@@ -706,15 +694,13 @@ class NutritionAIHandler(
     }
 
     private fun updateLanguage(
-        languageCode: String,
-        callback: MethodChannel.Result
+        languageCode: String, callback: MethodChannel.Result
     ) {
         callback.success(PassioSDK.instance.updateLanguage(languageCode))
     }
 
     private fun reportFoodItem(
-        args: Map<String, Any>,
-        result: MethodChannel.Result
+        args: Map<String, Any>, result: MethodChannel.Result
     ) {
         val refCode = args["refCode"] as String
         val productCode = args["productCode"] as String
@@ -726,8 +712,7 @@ class NutritionAIHandler(
     }
 
     private fun submitUserCreatedFood(
-        args: Map<String, Any>,
-        result: MethodChannel.Result
+        args: Map<String, Any>, result: MethodChannel.Result
     ) {
         val foodItem = mapToPassioFoodItem(args)
 
@@ -738,7 +723,7 @@ class NutritionAIHandler(
 
     private fun searchForFoodSemantic(args: String, callback: MethodChannel.Result) {
         PassioSDK.instance.searchForFoodSemantic(args) { searchResult, alternatives ->
-            val resultListMap =  mapFromSearchResponse(searchResult, alternatives)
+            val resultListMap = mapFromSearchResponse(searchResult, alternatives)
             callback.success(resultListMap)
         }
     }
@@ -751,10 +736,26 @@ class NutritionAIHandler(
         }
     }
 
-    private fun fetchUltraProcessingFoodRating(args: Map<String, Any>, callback: MethodChannel.Result) {
+    private fun fetchUltraProcessingFoodRating(
+        args: Map<String, Any>, callback: MethodChannel.Result
+    ) {
         val foodItem = mapToPassioFoodItem(args)
         PassioSDK.instance.fetchUltraProcessingFoodRating(foodItem) { result ->
             val resultMap = mapFromPassioUPFRatingResult(result)
+            callback.success(resultMap)
+        }
+    }
+
+    private fun generateMealPlan(args: String, callback: MethodChannel.Result) {
+        PassioSDK.instance.generateMealPlan(args) { result ->
+            val resultMap = mapFromPassioGeneratedMealPlanResult(result)
+            callback.success(resultMap)
+        }
+    }
+
+    private fun generateMealPlanPreview(args: String, callback: MethodChannel.Result) {
+        PassioSDK.instance.generateMealPlanPreview(args) { result ->
+            val resultMap = mapFromPassioGeneratedMealPlanResult(result)
             callback.success(resultMap)
         }
     }

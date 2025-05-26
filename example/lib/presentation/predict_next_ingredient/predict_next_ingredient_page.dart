@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
 import 'package:nutrition_ai_example/common/passio_image_widget.dart';
-import 'package:nutrition_ai_example/presentation/predict_next_ingredient/bloc/predict_next_bloc.dart';
 import 'package:nutrition_ai_example/common/util/string_extensions.dart';
+import 'package:nutrition_ai_example/presentation/predict_next_ingredient/bloc/predict_next_bloc.dart';
 
 import '../food_analysis/widgets/search_widget.dart';
 

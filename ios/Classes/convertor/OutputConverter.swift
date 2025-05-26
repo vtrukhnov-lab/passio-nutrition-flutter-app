@@ -523,6 +523,90 @@ struct OutputConverter {
         return map
     }
     
+    func mapFromPassioGeneratedMealPlanResult(_ result: Result<PassioGeneratedMealPlan, Error>) -> [String: Any?] {
+        var map = mapFromResultType(result) { value in
+            return mapFromPassioGeneratedMealPlan(value)
+        }
+        return map
+    }
+    
+    func mapFromPassioGeneratedMealPlan(_ mealPlan: PassioGeneratedMealPlan) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["constraints"] = mealPlan.constraints.flatMap { mapFromPassioGeneratedMealPlanConstraints($0) }
+        map["shoppingList"] = mealPlan.shoppingList.map { mapFromPassioGeneratedMealPlanShoppingItem($0) }
+        map["mealPlanDays"] = mealPlan.mealPlanDays.map { mapFromPassioGeneratedMealPlanDay($0) }
+        return map
+    }
+    
+    func mapFromPassioGeneratedMealPlanConstraints(_ constraints: PassioGeneratedMealPlanConstraints) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["constraints"] = constraints.constraints
+        map["macros"] = mapFromPassioGeneratedMealPlanMacros(constraints.macros)
+        return map
+    }
+    
+    func mapFromPassioGeneratedMealPlanMacros(_ macros: PassioGeneratedMealPlanMacros) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["calories"] = macros.calories
+        map["carbs"] = macros.carbs
+        map["fat"] = macros.fat
+        map["fiber"] = macros.fiber
+        map["protein"] = macros.protein
+        map["sugar"] = macros.sugar
+        return map
+    }
+    
+    func mapFromPassioGeneratedMealPlanShoppingItem(_ item: PassioGeneratedMealPlanShoppingItem) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["name"] = item.name
+        map["portionQuantity"] = item.portionQuantity
+        map["portionSize"] = item.portionSize
+        return map
+    }
+    
+    func mapFromPassioGeneratedMealPlanDay(_ day: PassioGeneratedMealPlanDay) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["breakfast"] = day.breakfast.map { mapFromPassioGeneratedMealPlanRecipe($0) }
+        map["lunch"] = day.lunch.map { mapFromPassioGeneratedMealPlanRecipe($0) }
+        map["dinner"] = day.dinner.map { mapFromPassioGeneratedMealPlanRecipe($0) }
+        map["snack"] = day.snack.map { mapFromPassioGeneratedMealPlanRecipe($0) }
+        map["macros"] = mapFromPassioGeneratedMealPlanMacros(day.macros)
+        return map
+    }
+    
+    func mapFromPassioGeneratedMealPlanRecipe(_ recipe: PassioGeneratedMealPlanRecipe) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["name"] = recipe.name
+        map["preparation"] = recipe.preparation
+        map["ingredients"] = recipe.ingredients.map { mapFromPassioFoodDataInfo(passioFoodDataInfo: $0) }
+        map["macros"] = mapFromPassioGeneratedMealPlanMacros(recipe.macros)
+        return map
+    }
+    
+    func mapFromPassioRecognitionResultRaw(_ result: Result<PassioRecognitionResult, Error>) -> [String: Any?] {
+        var map = mapFromResultType(result) { value in
+            return mapFromPassioRecognitionResult(value)
+        }
+        return map
+    }
+    
+    func mapFromPassioRecognitionResult(_ result: PassioRecognitionResult) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["mealName"] = result.mealName
+        map["items"] = result.items.map { mapFromPassioRecognitionItem($0) }
+        return map
+    }
+    
+    func mapFromPassioRecognitionItem(_ item: PassioRecognitionItem) -> [String: Any?] {
+        var map = [String: Any?]()
+        map["foodItem"] = mapFromPassioFoodItem(foodItem: item.foodItem)
+        map["date"] = item.date
+        map["action"] = item.action?.rawValue
+        map["mealTime"] = item.mealTime?.rawValue
+        map["resultType"] = item.resultType.rawValue
+        return map
+    }
+    
     func mapFromResultType<T, E: Error>(_ result: Result<T, E>, onSuccess: (T) -> [String: Any?]) -> [String: Any?] {
         var map = [String: Any?]()
 

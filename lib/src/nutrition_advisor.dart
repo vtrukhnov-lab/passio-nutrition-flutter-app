@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:nutrition_ai/src/util/passio_result.dart';
 import 'package:nutrition_ai/src/nutrition_ai_platform_interface.dart';
+import 'package:nutrition_ai/src/util/passio_result.dart';
 
 import 'models/passio_advisor_response.dart';
 

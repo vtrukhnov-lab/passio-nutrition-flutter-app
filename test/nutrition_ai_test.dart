@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
+import 'package:nutrition_ai/src/models/passio_generated_meal_plan.dart';
 import 'package:nutrition_ai/src/nutrition_ai_method_channel.dart';
 import 'package:nutrition_ai/src/nutrition_ai_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -64,13 +65,6 @@ class MockNutritionAiPlatform
   @override
   Future<List<String>?> fetchTagsFor(PassioID passioID) {
     throw UnimplementedError('fetchTagsFor(PassioID passioID)');
-  }
-
-  @override
-  Future<Rectangle<double>> transformCGRectForm(
-      Rectangle<double> boundingBox, Rectangle<double> toRect) {
-    throw UnimplementedError(
-        'transformCGRectForm(Rectangle<double> boundingBox, Rectangle<double> toRect');
   }
 
   @override
@@ -141,18 +135,6 @@ class MockNutritionAiPlatform
   Future<List<PassioAdvisorFoodInfo>> recognizeImageRemote(Uint8List bytes,
       {required PassioImageResolution resolution, String? message}) {
     // TODO: implement recognizeImageRemote
-    throw UnimplementedError();
-  }
-
-  @override
-  void startNutritionFactsDetection(
-      NutritionFactsRecognitionListener listener) {
-    // TODO: implement startNutritionFactsDetection
-  }
-
-  @override
-  Future<void> stopNutritionFactsDetection() {
-    // TODO: implement stopNutritionFactsDetection
     throw UnimplementedError();
   }
 
@@ -283,6 +265,35 @@ class MockNutritionAiPlatform
   Future<PassioResult<PassioUPFRating>> fetchUltraProcessingFoodRating(
       PassioFoodItem item) {
     // TODO: implement fetchUltraProcessingFoodRating
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlan(
+      String request) {
+    // TODO: implement generateMealPlan
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlanPreview(
+      String request) {
+    // TODO: implement generateMealPlanPreview
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeImageRemoteWithGrouping(Uint8List bytes,
+          {required PassioImageResolution resolution, String? message}) {
+    // TODO: implement recognizeImageRemoteWithGrouping
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeSpeechRemoteWithGrouping(String text) {
+    // TODO: implement recognizeSpeechRemoteWithGrouping
     throw UnimplementedError();
   }
 }

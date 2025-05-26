@@ -14,7 +14,7 @@ class AppShadows {
     boxShadow: [
       BoxShadow(
         // Shadow color with opacity
-        color: AppColors.black.withOpacity(0.05),
+        color: AppColors.black.withValues(alpha: 0.05),
         // Shadow offset (x, y)
         offset: const Offset(0, 1),
         // Blur radius of the shadow
@@ -35,7 +35,7 @@ class AppShadows {
     boxShadow: [
       BoxShadow(
         // Shadow color with opacity
-        color: AppColors.black.withOpacity(0.06),
+        color: AppColors.black.withValues(alpha: 0.06),
         // Shadow offset (x, y)
         offset: const Offset(0, 1),
         // Blur radius of the shadow
@@ -45,7 +45,7 @@ class AppShadows {
       ),
       BoxShadow(
         // Shadow color with opacity
-        color: AppColors.black.withOpacity(0.1),
+        color: AppColors.black.withValues(alpha: 0.1),
         // Shadow offset (x, y)
         offset: const Offset(0, 1),
         // Blur radius of the shadow
@@ -66,7 +66,7 @@ class AppShadows {
     boxShadow: [
       BoxShadow(
         // Shadow color with opacity
-        color: AppColors.black.withOpacity(0.05),
+        color: AppColors.black.withValues(alpha: 0.05),
         // Shadow offset (x, y)
         offset: const Offset(0, 4),
         // Blur radius of the shadow
@@ -76,7 +76,7 @@ class AppShadows {
       ),
       BoxShadow(
         // Shadow color with opacity
-        color: AppColors.black.withOpacity(0.1),
+        color: AppColors.black.withValues(alpha: 0.1),
         // Shadow offset (x, y)
         offset: const Offset(0, 10),
         // Blur radius of the shadow
@@ -97,7 +97,7 @@ class AppShadows {
     boxShadow: [
       BoxShadow(
         // Shadow color with opacity
-        color: AppColors.black.withOpacity(0.1),
+        color: AppColors.black.withValues(alpha: 0.1),
         // Shadow offset (x, y)
         offset: const Offset(0, 2),
         // Blur radius of the shadow
@@ -110,7 +110,7 @@ class AppShadows {
 
   static BoxShadow ring1BlackOpacity5 = BoxShadow(
     // Shadow color with opacity
-    color: AppColors.black.withOpacity(0.05),
+    color: AppColors.black.withValues(alpha: 0.05),
     // Shadow offset (x, y)
     offset: const Offset(0, 0),
     // Blur radius of the shadow

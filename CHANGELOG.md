@@ -1,3 +1,39 @@
+## 3.2.6
+
+### Added APIs
+
+* Added a new function `generateMealPlan` to generate meal plan from request string.
+```dart
+Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlan(String request)
+```
+
+* Added a new function `generateMealPlanPreview` to generate meal plan preview from request string.
+```dart
+Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlanPreview(String request)
+```
+
+* Added a new function `recognizeSpeechRemoteWithGrouping` to recognize speech input and group recognized food items by meal.
+```dart
+Future<PassioResult<PassioRecognitionResult>> recognizeSpeechRemoteWithGrouping(String text)
+```
+
+* Added a new function `recognizeImageRemoteWithGrouping` to recognize food items from an image and group them by meal.
+```dart
+Future<PassioResult<PassioRecognitionResult>> recognizeImageRemoteWithGrouping(Uint8List bytes, {PassioImageResolution resolution = PassioImageResolution.res_512, String? message})
+```
+
+### Removed APIs
+* Removed `transformCGRectForm` function
+* Removed `startNutritionFactsDetection` function
+* Removed `stopNutritionFactsDetection` function
+* Removed `PassioNutritionFacts` class
+
+
+## 3.2.5+1
+
+* Fixed iOS build issues for smoother project setup.
+
+
 ## 3.2.5
 
 ### Added APIs
@@ -62,7 +98,7 @@ Future<List<PassioFoodDataInfo>> predictNextIngredients(List<String> currentIngr
 * Refactored `fetchTagsFor` and `fetchInflammatoryEffectData` to accept `refCode` as a parameter instead of `passioID`.
 
 ### Removed APIs
-* Removed function `detectFoodIn`. Instead, recognizeImageRemote should be used
+* Removed function `detectFoodIn`. Instead, `recognizeImageRemote` should be used
 
 
 ## 3.2.1+1

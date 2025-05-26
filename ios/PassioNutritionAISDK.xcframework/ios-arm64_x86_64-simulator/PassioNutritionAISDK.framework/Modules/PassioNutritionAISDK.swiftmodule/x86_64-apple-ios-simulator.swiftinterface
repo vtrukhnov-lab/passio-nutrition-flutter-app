@@ -238,6 +238,68 @@ public struct Obfuscator {
   public init(_ unobfuscated: [Swift.UInt8])
   public init(_ unobfuscated: Swift.String)
 }
+public struct PassioGeneratedMealPlanPreview {
+  public let constraints: PassioNutritionAISDK.PassioGeneratedMealPlanConstraints?
+  public let mealPlanDays: [PassioNutritionAISDK.PassioGeneratedMealPlanDayPreview]
+}
+public struct PassioGeneratedMealPlanDayPreview {
+  public let breakfast: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipePreview]
+  public let lunch: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipePreview]
+  public let dinner: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipePreview]
+  public let snack: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipePreview]
+}
+public struct PassioGeneratedMealPlanRecipePreview {
+  public let name: Swift.String?
+  public let rejected: Swift.Bool
+}
+public struct PassioGeneratedMealPlan {
+  public let constraints: PassioNutritionAISDK.PassioGeneratedMealPlanConstraints?
+  public let shoppingList: [PassioNutritionAISDK.PassioGeneratedMealPlanShoppingItem]
+  public let mealPlanDays: [PassioNutritionAISDK.PassioGeneratedMealPlanDay]
+}
+public struct PassioGeneratedMealPlanConstraints {
+  public let constraints: PassioNutritionAISDK.SDKDic?
+  public let macros: PassioNutritionAISDK.PassioGeneratedMealPlanMacros
+}
+public struct PassioGeneratedMealPlanShoppingItem {
+  public let name: Swift.String?
+  public let portionQuantity: Swift.Double?
+  public let portionSize: Swift.String?
+}
+public struct PassioGeneratedMealPlanDay {
+  public let breakfast: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipe]
+  public let lunch: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipe]
+  public let dinner: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipe]
+  public let snack: [PassioNutritionAISDK.PassioGeneratedMealPlanRecipe]
+  public let macros: PassioNutritionAISDK.PassioGeneratedMealPlanMacros
+}
+public struct PassioGeneratedMealPlanRecipe {
+  public let name: Swift.String?
+  public let preparation: Swift.String?
+  public let macros: PassioNutritionAISDK.PassioGeneratedMealPlanMacros
+  public let ingredients: [PassioNutritionAISDK.PassioFoodDataInfo]
+}
+public struct PassioGeneratedMealPlanMacros {
+  public let calories: Swift.Double
+  public let protein: Swift.Double
+  public let fiber: Swift.Double
+  public let carbs: Swift.Double
+  public let fat: Swift.Double
+  public let sugar: Swift.Double
+}
+public struct PassioRecognitionResult : Swift.Encodable {
+  public let mealName: Swift.String
+  public let items: [PassioNutritionAISDK.PassioRecognitionItem]
+  public func encode(to encoder: any Swift.Encoder) throws
+}
+public struct PassioRecognitionItem : Swift.Encodable {
+  public let foodItem: PassioNutritionAISDK.PassioFoodItem
+  public let date: Swift.String
+  public let action: PassioNutritionAISDK.PassioLogAction?
+  public let mealTime: PassioNutritionAISDK.PassioMealTime?
+  public let resultType: PassioNutritionAISDK.PassioFoodResultType
+  public func encode(to encoder: any Swift.Encoder) throws
+}
 public struct PassioSearchNutritionPreview : Swift.Codable {
   public var calories: Swift.Int
   public let carbs: Swift.Double
@@ -335,6 +397,7 @@ public class PassioMetadataService {
   public func shutDownPassioSDK()
   @available(*, deprecated, message: "Use `recognizeImageRemote` instead.")
   public func startFoodDetection(detectionConfig: PassioNutritionAISDK.FoodDetectionConfiguration = FoodDetectionConfiguration(), foodRecognitionDelegate: any PassioNutritionAISDK.FoodRecognitionDelegate, capturingDeviceType: PassioNutritionAISDK.CapturingDeviceType = .defaultCapturing(), completion: @escaping (Swift.Bool) -> Swift.Void)
+  @available(*, deprecated, message: "This method is deprecated and will be removed in a future release.")
   public func startNutritionFactsDetection(nutritionfactsDelegate: (any PassioNutritionAISDK.NutritionFactsDelegate)?, capturingDeviceType: PassioNutritionAISDK.CapturingDeviceType = .defaultCapturing(), completion: @escaping (Swift.Bool) -> Swift.Void)
   @available(*, deprecated, message: "Use `recognizeImageRemote` instead.")
   public func stopFoodDetection()
@@ -373,7 +436,12 @@ public class PassioMetadataService {
   @available(iOS 15.0, *)
   public func setMLComputeUnits(units: CoreML.MLComputeUnits)
   public func recognizeSpeechRemote(from text: Swift.String, completion: @escaping ([PassioNutritionAISDK.PassioSpeechRecognitionModel]) -> Swift.Void)
+  public func recognizeSpeechRemoteWithGrouping(text: Swift.String, completion: @escaping (Swift.Result<PassioNutritionAISDK.PassioRecognitionResult, any Swift.Error>) -> Swift.Void)
   public func recognizeImageRemote(image: UIKit.UIImage, resolution: PassioNutritionAISDK.PassioImageResolution = .res_512, message: Swift.String? = nil, completion: @escaping ([PassioNutritionAISDK.PassioAdvisorFoodInfo]) -> Swift.Void)
+  public func recognizeImageRemoteWithGrouping(image: UIKit.UIImage, resolution: PassioNutritionAISDK.PassioImageResolution = .res_512, message: Swift.String? = nil, completion: @escaping (Swift.Result<PassioNutritionAISDK.PassioRecognitionResult, any Swift.Error>) -> Swift.Void)
+  public func generateMealPlan(request: Swift.String, completion: @escaping (Swift.Result<PassioNutritionAISDK.PassioGeneratedMealPlan, any Swift.Error>) -> Swift.Void)
+  public func generateMealPlanPreview(request: Swift.String, completion: @escaping (Swift.Result<PassioNutritionAISDK.PassioGeneratedMealPlan, any Swift.Error>) -> Swift.Void)
+  @available(*, deprecated, message: "This method is deprecated and will be removed in a future release.")
   public func detectFoodWithText(image: UIKit.UIImage, detectionConfig: PassioNutritionAISDK.FoodDetectionConfiguration = FoodDetectionConfiguration(), completion: @escaping ((any PassioNutritionAISDK.FoodCandidatesWithText)?) -> Swift.Void)
   public func fetchHiddenIngredients(foodName: Swift.String, completion: @escaping PassioNutritionAISDK.NutritionAdvisorIngredientsResponse)
   public func fetchVisualAlternatives(foodName: Swift.String, completion: @escaping PassioNutritionAISDK.NutritionAdvisorIngredientsResponse)
@@ -1276,6 +1344,7 @@ public enum Bridge : Swift.String {
     get
   }
 }
+public typealias SDKDic = [Swift.String : Any]
 public func printObject<T>(_ object: T) where T : Swift.Encodable
 public enum NetworkError : Swift.Error {
   case decode
@@ -1290,6 +1359,12 @@ public enum NetworkError : Swift.Error {
   public var errorMessage: Swift.String {
     get
   }
+}
+extension Foundation.Date {
+  public var timeSince: Swift.Double {
+    get
+  }
+  public func convertDate(dateFormat: Swift.String) -> Swift.String
 }
 public protocol NutritionAdvisorDelegate : AnyObject {
   func requestedDataForMessage(message: PassioNutritionAISDK.PassioAdvisorResponse) -> Swift.String?

@@ -1,8 +1,7 @@
-import 'dart:math';
 import 'dart:typed_data';
 
-import 'package:nutrition_ai/src/listeners/nutrition_facts_recognition_listener.dart';
 import 'package:nutrition_ai/src/models/passio_advisor_food_info.dart';
+import 'package:nutrition_ai/src/models/passio_recognition_result.dart';
 import 'package:nutrition_ai/src/models/passio_upf_rating.dart';
 
 import 'listeners/passio_account_listener.dart';
@@ -11,16 +10,17 @@ import 'models/inflammatory_effect_data.dart';
 import 'models/passio_camera_zoom_level.dart';
 import 'models/passio_food_data_info.dart';
 import 'models/passio_food_item.dart';
+import 'models/passio_generated_meal_plan.dart';
 import 'models/passio_meal_plan.dart';
 import 'models/passio_meal_plan_item.dart';
-import 'models/passio_status.dart';
-import 'util/passio_result.dart';
 import 'models/passio_search_response.dart';
 import 'models/passio_speech_recognition_model.dart';
+import 'models/passio_status.dart';
 import 'models/platform_image.dart';
 import 'nutrition_ai_configuration.dart';
 import 'nutrition_ai_detection.dart';
 import 'nutrition_ai_platform_interface.dart';
+import 'util/passio_result.dart';
 
 /// Singleton class to interact with NutritionAI SDK.
 class NutritionAI {
@@ -150,18 +150,6 @@ class NutritionAI {
     return NutritionAIPlatform.instance.fetchTagsFor(refCode);
   }
 
-  /// Transforms the bounding box of the camera frame to the coordinates
-  /// of the preview view where it should be displayed.
-  ///
-  /// [boundingBox] is a bounding box of a detected food candidate
-  /// [toRect] represents the bounds of the view where the camera preview is
-  /// drawn.
-  Future<Rectangle<double>> transformCGRectForm(
-      Rectangle<double> boundingBox, Rectangle<double> toRect) {
-    return NutritionAIPlatform.instance
-        .transformCGRectForm(boundingBox, toRect);
-  }
-
   /// If not null, the [PassioStatusListener] will provide callbacks
   /// when the internal state of the SDK's configuration process changes.
   /// Passing null will unregister the listener.
@@ -269,33 +257,6 @@ class NutritionAI {
       String? message}) {
     return NutritionAIPlatform.instance
         .recognizeImageRemote(bytes, resolution: resolution, message: message);
-  }
-
-  /// Starts the nutrition facts detection process.
-  ///
-  /// This function sets up a listener to receive nutrition facts recognition events
-  /// and invokes the provided [listener] with the recognition results as they are received.
-  ///
-  /// Parameters:
-  /// - [listener]: An instance of [NutritionFactsRecognitionListener] to handle recognition events.
-  @Deprecated(
-      "`startNutritionFactsDetection` will be removed in a future release. Use `recognizeImageRemote` instead.")
-  void startNutritionFactsDetection(
-      NutritionFactsRecognitionListener listener) {
-    return NutritionAIPlatform.instance.startNutritionFactsDetection(listener);
-  }
-
-  /// Stops the nutrition facts detection process.
-  ///
-  /// This function stops the ongoing nutrition facts detection and cleans up any resources
-  /// associated with the detection process.
-  ///
-  /// Returns:
-  /// - A [Future] that completes when the nutrition facts detection has been successfully stopped.
-  @Deprecated(
-      "`stopNutritionFactsDetection` will be removed in a future release. Use `recognizeImageRemote` instead.")
-  Future<void> stopNutritionFactsDetection() async {
-    return NutritionAIPlatform.instance.stopNutritionFactsDetection();
   }
 
   /// Fetches hidden ingredients for a given food item.
@@ -509,5 +470,97 @@ class NutritionAI {
       PassioFoodItem foodItem) async {
     return NutritionAIPlatform.instance
         .fetchUltraProcessingFoodRating(foodItem);
+  }
+
+  /// Generate meal plan from request string.
+  ///
+  /// Returns a [PassioResult] containing [PassioGeneratedMealPlan].
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = await NutritionAI.instance.generateMealPlan('I want a keto diet with 2000 daily calories');
+  /// switch (result) {
+  ///    case Success():
+  ///       // Handle success case with 'result.value'.
+  ///       break;
+  ///   case Error():
+  ///       // Handle error case with 'result.message'.
+  ///         break;
+  /// }
+  /// ```
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlan(
+      String request) {
+    return NutritionAIPlatform.instance.generateMealPlan(request);
+  }
+
+  /// Generate preview of meal plan from request string.
+  ///
+  /// Returns a [PassioResult] containing [PassioGeneratedMealPlan].
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = await NutritionAI.instance.generateMealPlanPreview('I want a keto diet with 2000 daily calories');
+  /// switch (result) {
+  ///    case Success():
+  ///       // Handle success case with 'result.value'.
+  ///       break;
+  ///   case Error():
+  ///       // Handle error case with 'result.message'.
+  ///         break;
+  /// }
+  /// ```
+  Future<PassioResult<PassioGeneratedMealPlan>> generateMealPlanPreview(
+      String request) {
+    return NutritionAIPlatform.instance.generateMealPlanPreview(request);
+  }
+
+  /// Recognize speech input and group recognized food items by meal.
+  ///
+  /// Returns a [PassioResult] containing [PassioRecognitionResult].
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = await NutritionAI.instance.recognizeSpeechRemoteWithGrouping(
+  ///   'For breakfast I had eggs and toast, and for dinner grilled chicken with rice');
+  /// switch (result) {
+  ///   case Success():
+  ///     // Handle success case with 'result.value'.
+  ///     break;
+  ///   case Error():
+  ///     // Handle error case with 'result.message'.
+  ///     break;
+  /// }
+  /// ```
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeSpeechRemoteWithGrouping(String text) {
+    return NutritionAIPlatform.instance.recognizeSpeechRemoteWithGrouping(text);
+  }
+
+  /// Recognize food items from an image and group them by meal.
+  ///
+  /// Returns a [PassioResult] containing [PassioRecognitionResult].
+  ///
+  /// [bytes] is the image data to be analyzed.
+  /// [resolution] specifies the resolution at which the image should be processed.
+  /// [message] is an optional hint or description to aid recognition (e.g., "Lunch photo").
+  ///
+  /// Example:
+  /// ```dart
+  /// final result = await NutritionAI.instance.recognizeImageRemoteWithGrouping(imageBytes);
+  /// switch (result) {
+  ///   case Success():
+  ///     // Handle success case with 'result.value'.
+  ///     break;
+  ///   case Error():
+  ///     // Handle error case with 'result.message'.
+  ///     break;
+  /// }
+  /// ```
+  Future<PassioResult<PassioRecognitionResult>>
+      recognizeImageRemoteWithGrouping(Uint8List bytes,
+          {PassioImageResolution resolution = PassioImageResolution.res_512,
+          String? message}) {
+    return NutritionAIPlatform.instance.recognizeImageRemoteWithGrouping(bytes,
+        resolution: resolution, message: message);
   }
 }

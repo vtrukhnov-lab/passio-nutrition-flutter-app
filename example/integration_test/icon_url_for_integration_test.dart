@@ -1,17 +1,20 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
-import 'package:nutrition_ai_example/domain/entity/app_secret/app_secret.dart';
+
+import 'utils/sdk_utils.dart';
 
 void main() {
-  // This function is called once before all tests are run.
   setUpAll(() async {
-    // Configure the Passio SDK with a key for testing.
-    const configuration = PassioConfiguration(AppSecret.passioKey);
-    final status = await NutritionAI.instance.configureSDK(configuration);
-    expect(status.mode, PassioMode.isReadyForDetection);
+    await configureSDK();
   });
 
-  runTests();
+  runGroup();
+}
+
+void runGroup() {
+  group('iconURLFor tests', () {
+    runTests();
+  });
 }
 
 void runTests() {
@@ -29,6 +32,13 @@ void runTests() {
           .iconURLFor('VEG0018', iconSize: IconSize.px360);
       expect(result, isNotEmpty);
       expect(result, contains('360'));
+    });
+
+    test('Pass the "VEG0018" as passioID without configureSDK test', () async {
+      await testWithoutConfigureSDK(() async {
+        final String result = await NutritionAI.instance.iconURLFor('VEG0018');
+        expect(result, isEmpty);
+      });
     });
   });
 }

@@ -27,17 +27,24 @@ import ai.passio.passiosdk.passiofood.data.model.PassioFoodItem
 import ai.passio.passiosdk.passiofood.data.model.PassioFoodMetadata
 import ai.passio.passiosdk.passiofood.data.model.PassioFoodOrigin
 import ai.passio.passiosdk.passiofood.data.model.PassioFoodResultType
+import ai.passio.passiosdk.passiofood.data.model.PassioGeneratedMealPlan
+import ai.passio.passiosdk.passiofood.data.model.PassioGeneratedMealPlanConstraints
+import ai.passio.passiosdk.passiofood.data.model.PassioGeneratedMealPlanDay
+import ai.passio.passiosdk.passiofood.data.model.PassioGeneratedMealPlanMacros
+import ai.passio.passiosdk.passiofood.data.model.PassioGeneratedMealPlanRecipe
+import ai.passio.passiosdk.passiofood.data.model.PassioGeneratedMealPlanShoppingItem
 import ai.passio.passiosdk.passiofood.data.model.PassioIngredient
 import ai.passio.passiosdk.passiofood.data.model.PassioMealPlan
 import ai.passio.passiosdk.passiofood.data.model.PassioMealPlanItem
 import ai.passio.passiosdk.passiofood.data.model.PassioNutrients
+import ai.passio.passiosdk.passiofood.data.model.PassioRecognitionItem
+import ai.passio.passiosdk.passiofood.data.model.PassioRecognitionResult
 import ai.passio.passiosdk.passiofood.data.model.PassioResult
 import ai.passio.passiosdk.passiofood.data.model.PassioServingSize
 import ai.passio.passiosdk.passiofood.data.model.PassioServingUnit
 import ai.passio.passiosdk.passiofood.data.model.PassioSpeechRecognitionModel
 import ai.passio.passiosdk.passiofood.data.model.PassioTokenBudget
 import ai.passio.passiosdk.passiofood.data.model.PassioUPFRating
-import ai.passio.passiosdk.passiofood.nutritionfacts.PassioNutritionFacts
 import android.graphics.Bitmap
 import android.net.Uri
 
@@ -503,55 +510,6 @@ fun mapFromPassioAdvisorFoodInfo(passioAdvisorFoodInfo: PassioAdvisorFoodInfo): 
     }
 }
 
-/**
- * Maps the result of a nutrition facts recognition operation to a map.
- *
- * @param nutritionFacts The recognized nutrition facts, or null if none were found.
- * @param text The text that was recognized.
- * @return A map containing the nutrition facts and the recognized text
- */
-fun mapFromNutritionFactsRecognitionListener(
-    nutritionFacts: PassioNutritionFacts?,
-    text: String
-): Map<String, Any?> {
-    return mapOf("nutritionFacts" to mapFromPassioNutritionFacts(nutritionFacts), "text" to text)
-}
-
-/**
- * Maps a PassioNutritionFacts object to a map of key-value pairs.
- *
- * @param nutritionFacts The PassioNutritionFacts object to map.
- * @return A map of key-value pairs representing the nutrition facts, or an empty map if nutritionFacts is null.
- */
-fun mapFromPassioNutritionFacts(nutritionFacts: PassioNutritionFacts?): Map<String, Any?>? {
-    return nutritionFacts?.let {
-        mapOf(
-            "addedSugar" to null,
-            "calcium" to null,
-            "calories" to it.calories,
-            "carbs" to it.carbs,
-            "cholesterol" to it.cholesterol,
-            "dietaryFiber" to null,
-            "fat" to it.fat,
-            "iron" to null,
-            "ingredients" to null,
-            "potassium" to null,
-            "protein" to it.protein,
-            "saturatedFat" to it.saturatedFat,
-            "servingUnit" to it.servingUnit,
-            "servingQuantity" to it.servingQuantity,
-            "weightUnit" to it.weightUnit,
-            "weightQuantity" to it.weightQuantity,
-            "sodium" to null,
-            "sugarAlcohol" to it.sugarAlcohol,
-            "sugars" to it.sugars,
-            "totalSugars" to null,
-            "transFat" to it.transFat,
-            "vitaminD" to null,
-        )
-    }
-}
-
 fun mapFromPassioResult(callback: PassioResult<Any>): Map<String, Any?> {
     val map = mutableMapOf<String, Any?>()
     when (callback) {
@@ -632,13 +590,13 @@ fun mapFromMinMaxCameraZoomLevel(minMax: Pair<Float?, Float?>): Map<String, Any?
     )
 }
 
-fun mapFromPassioUPFRatingResult(result: PassioResult<PassioUPFRating>) : Map<String, Any?> {
+fun mapFromPassioUPFRatingResult(result: PassioResult<PassioUPFRating>): Map<String, Any?> {
     return mapFromPassioResultType(result) { value ->
         mapFromPassioUPFRating(value)
     }
 }
 
-fun mapFromPassioUPFRating(rating: PassioUPFRating) : Map<String, Any?> {
+fun mapFromPassioUPFRating(rating: PassioUPFRating): Map<String, Any?> {
     return mapOf(
         "chainOfThought" to rating.chainOfThought,
         "highlightedIngredients" to rating.highlightedIngredients,
@@ -646,7 +604,10 @@ fun mapFromPassioUPFRating(rating: PassioUPFRating) : Map<String, Any?> {
     )
 }
 
-fun <T> mapFromPassioResultType(callback: PassioResult<T>, onSuccess: (T) -> Map<String, Any?>): Map<String, Any?> {
+fun <T> mapFromPassioResultType(
+    callback: PassioResult<T>,
+    onSuccess: (T) -> Map<String, Any?>
+): Map<String, Any?> {
     val map = mutableMapOf<String, Any?>()
     when (callback) {
         is PassioResult.Success -> {
@@ -670,5 +631,90 @@ fun stringToPassioFoodResultType(value: PassioFoodResultType): String {
         PassioFoodResultType.FOOD_ITEM -> "foodItem"
         PassioFoodResultType.BARCODE -> "barcode"
         PassioFoodResultType.NUTRITION_FACTS -> "nutritionFacts"
+    }
+}
+
+fun mapFromPassioGeneratedMealPlanResult(result: PassioResult<PassioGeneratedMealPlan>): Map<String, Any?> {
+    return mapFromPassioResultType(result) { value ->
+        mapFromPassioGeneratedMealPlan(value)
+    }
+}
+
+fun mapFromPassioGeneratedMealPlan(mealPlan: PassioGeneratedMealPlan): Map<String, Any?> {
+    return mapOf(
+        "constraints" to mealPlan.constraints?.let { mapFromPassioGeneratedMealPlanConstraints(it) },
+        "shoppingList" to mealPlan.shoppingList.map { mapFromPassioGeneratedMealPlanShoppingItem(it) },
+        "mealPlanDays" to mealPlan.mealPlanDays.map { mapFromPassioGeneratedMealPlanDay(it) },
+    )
+}
+
+fun mapFromPassioGeneratedMealPlanConstraints(constraints: PassioGeneratedMealPlanConstraints): Map<String, Any?> {
+    return mapOf(
+        "constraints" to constraints.constraints,
+        "macros" to mapFromPassioGeneratedMealPlanMacros(constraints.macros)
+    )
+}
+
+fun mapFromPassioGeneratedMealPlanMacros(macros: PassioGeneratedMealPlanMacros): Map<String, Any?> {
+    return mapOf(
+        "calories" to macros.calories,
+        "carbs" to macros.carbs,
+        "fat" to macros.fat,
+        "fiber" to macros.fiber,
+        "protein" to macros.protein,
+        "sugar" to macros.sugar
+    )
+}
+
+fun mapFromPassioGeneratedMealPlanShoppingItem(item: PassioGeneratedMealPlanShoppingItem): Map<String, Any?> {
+    return mapOf(
+        "name" to item.name,
+        "portionQuantity" to item.portionQuantity,
+        "portionSize" to item.portionSize
+    )
+}
+
+fun mapFromPassioGeneratedMealPlanDay(day: PassioGeneratedMealPlanDay): Map<String, Any?> {
+    return mapOf(
+        "breakfast" to day.breakfast.map { mapFromPassioGeneratedMealPlanRecipe(it) },
+        "lunch" to day.lunch.map { mapFromPassioGeneratedMealPlanRecipe(it) },
+        "dinner" to day.dinner.map { mapFromPassioGeneratedMealPlanRecipe(it) },
+        "snack" to day.snack.map { mapFromPassioGeneratedMealPlanRecipe(it) },
+        "macros" to mapFromPassioGeneratedMealPlanMacros(day.macros),
+    )
+}
+
+fun mapFromPassioGeneratedMealPlanRecipe(recipe: PassioGeneratedMealPlanRecipe): Map<String, Any?> {
+    return mapOf(
+        "name" to recipe.name,
+        "preparation" to recipe.preparation,
+        "ingredients" to recipe.ingredients.map { mapFromPassioFoodDataInfo(it) },
+        "macros" to mapFromPassioGeneratedMealPlanMacros(recipe.macros),
+    )
+}
+
+
+fun mapFromPassioRecognitionResultRaw(result: PassioResult<PassioRecognitionResult>): Map<String, Any?> {
+    return mapFromPassioResultType(result) { value ->
+        mapFromPassioRecognitionResult(value)
+    }
+}
+
+fun mapFromPassioRecognitionResult(result: PassioRecognitionResult): Map<String, Any?> {
+    return mapOf(
+        "mealName" to result.mealName,
+        "items" to result.items.map { mapFromPassioRecognitionItem(it) },
+    )
+}
+
+fun mapFromPassioRecognitionItem(item: PassioRecognitionItem): Map<String, Any?> {
+    return with(item) {
+        mapOf(
+            "foodItem" to mapFromPassioFoodItem(item.foodItem),
+            "date" to item.date,
+            "action" to item.action?.name?.lowercase(),
+            "mealTime" to item.mealTime?.name?.lowercase(),
+            "resultType" to stringToPassioFoodResultType(resultType),
+        )
     }
 }

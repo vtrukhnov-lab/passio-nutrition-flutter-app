@@ -1,49 +1,59 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nutrition_ai/nutrition_ai.dart';
-import 'package:nutrition_ai_example/domain/entity/app_secret/app_secret.dart';
+
+import 'utils/sdk_utils.dart';
 
 PassioTokenBudget? _tokenBudget;
 
 void main() {
   // This function is called once before all tests are run.
   setUpAll(() async {
-    // Configure the Passio SDK with a key for testing.
-    const configuration = PassioConfiguration(AppSecret.passioKey);
-    final status = await NutritionAI.instance.configureSDK(configuration);
-    expect(status.mode, PassioMode.isReadyForDetection);
+    await configureSDK();
   });
 
-  runTests();
+  runGroup();
+}
+
+void runGroup() {
+  group('setAccountListener tests', () {
+    runTests();
+  });
 }
 
 void runTests() {
-  group('setAccountListener tests', () {
-    // Expected output: Verify that _tokenBudget is updated with a non-null, valid token budget object with a non-empty API name.
-    test('Set "PassioAccountListener" and call searchForFood', () async {
-      // Arrange
-      const listener = MyPassioAccountListener();
+  // Expected output: Verify that _tokenBudget is updated with a non-null, valid token budget object with a non-empty API name.
+  test('Set "PassioAccountListener" and call searchForFood', () async {
+    const listener = MyPassioAccountListener();
+    NutritionAI.instance.setAccountListener(listener);
 
-      // Act
-      NutritionAI.instance.setAccountListener(listener);
+    await NutritionAI.instance.searchForFood('Apple');
+
+    expect(_tokenBudget, isNotNull);
+    expect(_tokenBudget?.apiName, isNotEmpty);
+  });
+
+  // Expected output: Verify that the _tokenBudget should be null.
+  test('Remove "PassioAccountListener" and call searchForFood', () async {
+    _tokenBudget = null;
+    NutritionAI.instance.setAccountListener(null);
+
+    await NutritionAI.instance.searchForFood('Apple');
+
+    expect(_tokenBudget, isNull);
+  });
+
+  test('set SDK language to "es" and call searchForFood', () async {
+    const listener = MyPassioAccountListener();
+    NutritionAI.instance.setAccountListener(listener);
+
+    await testWithLanguage((languageResult) async {
+      expect(languageResult, isTrue);
+
       await NutritionAI.instance.searchForFood('Apple');
-
-      // Assert
-      expect(_tokenBudget, isNotNull);
-      expect(_tokenBudget?.apiName, isNotEmpty);
     });
 
-    // Expected output: Verify that the _tokenBudget should be null.
-    test('Remove "PassioAccountListener" and call searchForFood', () async {
-      // Arrange
-      _tokenBudget = null;
-      NutritionAI.instance.setAccountListener(null);
-
-      // Act
-      await NutritionAI.instance.searchForFood('Apple');
-
-      // Assert
-      expect(_tokenBudget, isNull);
-    });
+    expect(_tokenBudget, isNotNull);
+    expect(_tokenBudget?.apiName, isNotEmpty);
   });
 }
 
